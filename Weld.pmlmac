@@ -1,0 +1,24 @@
+!sitex4collect = object collection()
+!sitex4collect.addtype('SITE')
+!sitex4collect.filter(object expression(|matchwild(name, '*EX-4*')|))
+!listSite4 = !sitex4collect.results()
+
+!sitex4collectsoudure = object collection()
+!sitex4collectsoudure.addtype('WELD')
+!sitex4collectsoudure.scope(!listSite4)
+!pipelist4 = !sitex4collectsoudure.results()
+
+!weldstring = 'SA-'
+!seq = 1
+
+DO !x FROM 1 TO !pipelist4.SIZE()
+    !weld = !pipelist4[!x]
+    !currentName = !weld.Name
+    
+    -- Vérifier si le nom contient "WELD" (insensible à la casse)
+    IF MATCHWILD('*WELD*', UPCASE(!currentName)) THEN
+        !newName = !weldstring + !seq.STRING()
+        !weld.Name = !newName
+        !seq = !seq + 1
+    ENDIF
+ENDDO
