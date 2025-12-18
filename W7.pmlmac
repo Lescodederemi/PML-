@@ -1,0 +1,66 @@
+!DBREF = array()
+!sitex7collect = object collection()
+!sitex7collect.addtype('BRAN')
+!sitex7collect.filter(object expression(|matchwild(name, '*EX-4*')|))
+!sitex7collect.filter(object expression(|matchwild(name, '*Q4*')|))
+!listSite7 = !sitex7collect.results()
+
+!collect = object collection()
+!collect.scope(!listSite7)
+!collect.addtype('WELD')
+!collect.addtype('SWN')
+!collect.addtype('TEE')
+!list = !collect.results()
+
+!taillelist = !list.size()
+
+DO !a FROM 1 TO !taillelist
+  !DBREF[!a] = array()
+  !DBREF[!a][1] = !list[!a]
+  !DBREF[!a][2] = !list[!a].type
+  !DBREF[!a][3] = !list[!a].name
+ENDDO
+
+DO !b FROM 1 TO !taillelist
+  !!typeB = !DBREF[!b][2]
+  if ( !!typeB eq 'TEE' ) then
+    !!teeName = !DBREF[!b][3]
+    $p *** TEE: $!!teeName
+    
+    !refPos = !b - 2
+    if ( !refPos ge 1 ) then
+      !!refType = !DBREF[!refPos][2]
+      if ( !!refType eq 'WELD' ) then
+        !!refName = !DBREF[!refPos][3]
+        $p   Reference: $!!refName
+        
+        !!prefix = !!refName
+        
+        !pos1 = !b - 1
+        if ( !pos1 ge 1 ) then
+          !!type1 = !DBREF[!pos1][2]
+          if ( !!type1 eq 'WELD' ) then
+            !!weld1Name = !!prefix + '.1'
+            !weld1Obj = !DBREF[!pos1][1]
+            !weld1Obj.name = |/$!!weld1Name|
+            $p     -> RENAME WELD[!pos1] → $!!weld1Name
+          endif
+        endif
+        
+        !pos2 = !b + 1
+        if ( !pos2 le !taillelist ) then
+          !!type2 = !DBREF[!pos2][2]
+          if ( !!type2 eq 'WELD' ) then
+            !!weld2Name = !!prefix + '.2'
+            !weld2Obj = !DBREF[!pos2][1]
+            !weld2Obj.name = |/$!!weld2Name|
+            $p     -> RENAME WELD[!pos2] → $!!weld2Name
+          endif
+        endif
+      endif
+    endif
+    $p ---
+  endif
+ENDDO
+
+$p TERMINÉ !
